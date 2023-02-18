@@ -45,6 +45,7 @@ static NSString *const RNCallKeepDidLoadWithEvents = @"RNCallKeepDidLoadWithEven
     bool _hasListeners;
     bool _isReachable;
     NSMutableArray *_delayedEvents;
+    NSMutableDictionary<NSString*, CXEndCallAction*> *_endCallActions;
 }
 
 static bool isSetupNatively;
@@ -62,6 +63,7 @@ RCT_EXPORT_MODULE()
         _isStartCallActionEventListenerAdded = NO;
         _isReachable = NO;
         if (_delayedEvents == nil) _delayedEvents = [NSMutableArray array];
+        if (_endCallActions == nil) _endCallActions = [[NSMutableDictionary alloc] init];
 
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(onAudioRouteChange:)
@@ -97,6 +99,7 @@ RCT_EXPORT_MODULE()
     }
     sharedProvider = nil;
     _isReachable = NO;
+    _endCallActions = nil;
 }
 
 // Override method of RCTEventEmitter
@@ -355,6 +358,19 @@ RCT_EXPORT_METHOD(endCall:(NSString *)uuidString)
     CXTransaction *transaction = [[CXTransaction alloc] initWithAction:endCallAction];
 
     [self requestTransaction:transaction];
+}
+
+RCT_EXPORT_METHOD(fulfillEndCall:(NSString *)uuidString)
+{
+#ifdef DEBUG
+    NSLog(@"[RNCallKeep][fulfillEndCall] uuidString = %@", uuidString);
+#endif
+    CXCallAction* action = [_endCallActions valueForKey:uuidString];
+    if (action) {
+        NSLog(@"[RNCallKeep][fulfillEndCall] fulfilling the end call action");
+        [action fulfill];
+        [_endCallActions removeObjectForKey:uuidString];
+    };
 }
 
 RCT_EXPORT_METHOD(endAllCalls)
@@ -1055,7 +1071,8 @@ RCT_EXPORT_METHOD(reportUpdatedCall:(NSString *)uuidString contactIdentifier:(NS
     NSLog(@"[RNCallKeep][CXProviderDelegate][provider:performEndCallAction]");
 #endif
     [self sendEventWithNameWrapper:RNCallKeepPerformEndCallAction body:@{ @"callUUID": [action.callUUID.UUIDString lowercaseString] }];
-    [action fulfill];
+    [_endCallActions setValue:action forKey: [action.callUUID.UUIDString lowercaseString]];
+    // TODO: consider auto-fulfillment
 }
 
 -(void)provider:(CXProvider *)provider performSetHeldCallAction:(CXSetHeldCallAction *)action

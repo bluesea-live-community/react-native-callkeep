@@ -178,6 +178,12 @@ class RNCallKeep {
 
   endCall = (uuid) => RNCallKeepModule.endCall(uuid);
 
+  fulfillEndCall = (uuid) => {
+    if (isIOS) {
+      RNCallKeepModule.fulfillEndCall(uuid);
+    }
+  };
+
   endAllCalls = () => RNCallKeepModule.endAllCalls();
 
   supportConnectionService = () => supportConnectionService;

@@ -194,6 +194,8 @@ declare module 'react-native-callkeep' {
 
     static endCall(uuid: string): void
 
+    static fulfillEndCall(uuid: string): void
+
     static endAllCalls(): void
 
     static setReachable(): void
