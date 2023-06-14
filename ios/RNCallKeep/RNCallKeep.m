@@ -741,22 +741,52 @@ RCT_EXPORT_METHOD(getAudioRoutes: (RCTPromiseResolveBlock)resolve
 #endif
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
     switch (reason) {
-        case 1:
+        case 1: {
             [sharedProvider reportCallWithUUID:uuid endedAtDate:[NSDate date] reason:CXCallEndedReasonFailed];
+            RNCallKeep *callKeep = [RNCallKeep allocWithZone: nil];
+            [callKeep sendEventWithNameWrapper:RNCallKeepPerformEndCallAction body:@{
+                @"callUUID": [uuidString lowercaseString],
+                @"reason": @"CXCallEndedReasonFailed"
+            }];
             break;
+        }
         case 2:
-        case 6:
+        case 6: {
             [sharedProvider reportCallWithUUID:uuid endedAtDate:[NSDate date] reason:CXCallEndedReasonRemoteEnded];
+            RNCallKeep *callKeep = [RNCallKeep allocWithZone: nil];
+            [callKeep sendEventWithNameWrapper:RNCallKeepPerformEndCallAction body:@{
+                @"callUUID": [uuidString lowercaseString],
+                @"reason": @"CXCallEndedReasonRemoteEnded"
+            }];
             break;
-        case 3:
+        }
+        case 3: {
             [sharedProvider reportCallWithUUID:uuid endedAtDate:[NSDate date] reason:CXCallEndedReasonUnanswered];
+            RNCallKeep *callKeep = [RNCallKeep allocWithZone: nil];
+            [callKeep sendEventWithNameWrapper:RNCallKeepPerformEndCallAction body:@{
+                @"callUUID": [uuidString lowercaseString],
+                @"reason": @"CXCallEndedReasonUnanswered"
+            }];
             break;
-        case 4:
+        }
+        case 4: {
             [sharedProvider reportCallWithUUID:uuid endedAtDate:[NSDate date] reason:CXCallEndedReasonAnsweredElsewhere];
+            RNCallKeep *callKeep = [RNCallKeep allocWithZone: nil];
+            [callKeep sendEventWithNameWrapper:RNCallKeepPerformEndCallAction body:@{
+                @"callUUID": [uuidString lowercaseString],
+                @"reason": @"CXCallEndedReasonAnsweredElsewhere"
+            }];
             break;
-        case 5:
+        }
+        case 5: {
             [sharedProvider reportCallWithUUID:uuid endedAtDate:[NSDate date] reason:CXCallEndedReasonDeclinedElsewhere];
+            RNCallKeep *callKeep = [RNCallKeep allocWithZone: nil];
+            [callKeep sendEventWithNameWrapper:RNCallKeepPerformEndCallAction body:@{
+                @"callUUID": [uuidString lowercaseString],
+                @"reason": @"CXCallEndedReasonDeclinedElsewhere"
+            }];
             break;
+        }
         default:
             break;
     }
